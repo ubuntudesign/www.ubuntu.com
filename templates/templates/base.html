@@ -61,6 +61,10 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="{% if 'http' not in self.meta_image() %}https://assets.ubuntu.com/v1/{% endif %}{{ self.meta_image() }}">
   <meta property="og:image" content="{% if 'http' not in self.meta_image() %}https://assets.ubuntu.com/v1/{% endif %}{{ self.meta_image() }}">
+  {% else %}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="/static/files/meta_image.png?title={{ self.title() | urlencode }}">
+  <meta property="og:image" content="/static/files/meta_image.png?title={{ self.title() | urlencode }}">
   {% endif %}
 
   {% block extra_metatags %}{% endblock %}
