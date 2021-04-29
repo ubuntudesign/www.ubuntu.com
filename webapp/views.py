@@ -10,6 +10,7 @@ import re
 
 # Packages
 import dateutil.parser
+import requests
 import feedparser
 import flask
 import gnupg
@@ -778,6 +779,28 @@ def post_advantage_subscriptions(preview):
 
     return flask.jsonify(purchase), 200
 
+# This view proxies requests from /ua-contracts/* to ua-contracts in staging,
+# keeping the method, path, query string and body (if any). It should work with
+# any endpoint, without needing to code anything extra. It is not the most
+# efficient way of proxying requests, but it's certainly the easiest to
+# demonstrate :)
+def ua_contracts(path):
+    body = flask.request.get_json(silent=True)
+    srv = flask.current_app.config["CONTRACTS_TEST_API_URL"]
+    url = f"{srv}/{path}"
+    if flask.request.query_string:
+        url = f"{url}?{flask.request.query_string.encode('utf-8')}"
+    headers = {}
+    if flask.session.get("authentication_token"):
+        headers["Authorization"] = f"Macaroon {flask.session['authentication_token']}"
+
+    res = requests.request(flask.request.method, url, headers=headers, json=body)
+    try:
+        data = res.json()
+    except:
+        data = res.text
+
+    return flask.jsonify(data), res.status_code
 
 @store_maintenance
 def advantage_shop_view():

@@ -44,6 +44,9 @@
         </p>
       </div>
     </div>
+
+    <div class="row" id="root"></div>
+    <script src="{{ versioned_static('js/dist/ua.js') }}" type="module" defer></script>
   </section>
 
   {% if enterprise_contracts %}
@@ -546,7 +549,6 @@
     }
   }
 </script>
-
 
 {% with first_item="_ua_got_questions", second_item="_ua_legal", third_item="_ua_further_reading" %}{% include "shared/contextual_footers/_contextual_footer.html" %}{% endwith %}
 

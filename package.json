@@ -31,7 +31,6 @@
   "author": "Canonical webteam",
   "license": "LGPL v3",
   "devDependencies": {
-    "esbuild": "0.9.2",
     "@babel/core": "7.12.13",
     "@babel/plugin-transform-runtime": "7.12.15",
     "@babel/preset-env": "7.12.13",
@@ -40,6 +39,7 @@
     "babel-loader": "8.2.2",
     "concurrently": "6.0.0",
     "cypress": "5.6.0",
+    "esbuild": "0.9.2",
     "eslint": "7.19.0",
     "eslint-config-prettier": "7.2.0",
     "eslint-plugin-cypress": "2.11.2",
@@ -62,9 +62,11 @@
     "@canonical/cookie-policy": "3.2.0",
     "@canonical/global-nav": "2.4.5",
     "@canonical/latest-news": "1.2.0",
-    "url-polyfill": "1.1.12",
     "date-fns": "2.17.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "smartquotes": "2.3.2",
+    "url-polyfill": "1.1.12",
     "url-search-params-polyfill": "8.1.0",
     "vanilla-framework": "2.27.0"
   },

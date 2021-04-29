@@ -19,6 +19,7 @@ let entries = {
   "ua-product-selector": "./static/js/src/ua-product-selector.js",
   "ua-entitlements-callout":
     "./static/js/src/advantage/entitlements-callout.js",
+  "ua": "./static/js/src/advantage/ua.jsx",
 };
 
 for (const [key, value] of Object.entries(entries)) {
@@ -29,6 +30,7 @@ for (const [key, value] of Object.entries(entries)) {
     sourcemap: true,
     outfile: "static/js/dist/" + key + ".js",
     target: ["chrome58", "firefox57", "safari11", "edge16"],
+    define: {'process.env.NODE_ENV': '"production"'},
   };
 
   esbuild.build(options).then((result) => {
