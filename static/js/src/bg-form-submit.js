@@ -165,7 +165,7 @@ const backgroundSubmit = function (marketoForm, submitCallback) {
   }
 
   // get the return url if it exists to redirect users after
-  let return_url = marketoForm.querySelector("input[name=return_url]");
+  let return_url = marketoForm.querySelector("input[name=returnURL]");
   if (return_url != null) {
     return_url = return_url.value;
   }
