@@ -31,7 +31,7 @@ context("Marketo form", () => {
     cy.get('input[name="firstName"]').type("Test");
     cy.get('input[name="lastName"]').type("Test");
     cy.get('input[name="company"]').type("Test");
-    cy.get('input[name="Title"]').type("Test");
+    cy.get('input[name="title"]').type("Test");
     cy.get('input[name="email"]').type("test@test.com");
 
     getIframeBody().find(".rc-anchor-content").click();
@@ -49,7 +49,7 @@ context("Marketo form", () => {
     cy.get('input[name="phone"]').type("000000000");
     cy.get('select[name="Country"]').select("Colombia");
     cy.get('input[name="company"]').type("Test");
-    cy.get('input[name="Title"]').type("Test");
+    cy.get('input[name="title"]').type("Test");
     cy.get('textarea[name="Comments_from_lead__c"]').type(
       "Test test test test"
     );
@@ -67,7 +67,7 @@ context("Marketo form", () => {
     cy.get('input[name="firstName"]').type("Test");
     cy.get('input[name="lastName"]').type("Test");
     cy.get('input[name="company"]').type("Test");
-    cy.get('input[name="Title"]').type("Test");
+    cy.get('input[name="title"]').type("Test");
     cy.get('input[name="email"]').type("test@test.com");
     cy.get('input[name="phone"]').type("000000000");
 
