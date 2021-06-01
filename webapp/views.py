@@ -735,10 +735,6 @@ def sitemap_index():
     return response
 
 
-def marketo_describe():
-    return flask.jsonify(marketo_api.describe().json())
-
-
 def marketo_submit():
     form_fields = {}
     for key, value in flask.request.form.items():
