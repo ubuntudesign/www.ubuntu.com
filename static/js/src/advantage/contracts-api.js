@@ -317,7 +317,7 @@ export async function postGuestFreeTrial({
 }) {
   const queryString = window.location.search; // Pass arguments to the flask backend eg. "test_backend=true"
 
-  let response = await fetch(`/advantage/post_guest_trial${queryString}`, {
+  let response = await fetch(`/advantage/post-guest-trial${queryString}`, {
     method: "POST",
     cache: "no-store",
     credentials: "include",

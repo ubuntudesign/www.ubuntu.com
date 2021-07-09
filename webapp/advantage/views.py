@@ -19,6 +19,7 @@ from webapp.advantage.api import (
     UnauthorizedError,
     UAContractsUserHasNoAccount,
     UAContractsAPIError,
+    UAContractsAPIAuthErrorView,
     UAContractsAPIErrorView,
 )
 
@@ -29,18 +30,26 @@ from webapp.advantage.schemas import (
     post_customer_info,
     ensure_purchase_account,
     post_payment_method,
+    post_trial,
+    post_guest_trial,
 )
 
 
 session = talisker.requests.get_session()
 
 
-@advantage_checks(check_list=["is_maintenance", "view_need_user"])
+@advantage_checks(
+    check_list=[
+        "is_maintenance",
+        "view_need_user",
+        "check_for_guest_trials",
+    ]
+)
 @use_kwargs({"subscription": String(), "email": String()}, location="query")
 def advantage_view(**kwargs):
     is_test_backend = kwargs.get("test_backend")
     api_url = kwargs.get("api_url")
-    stripe_publishable_key = kwargs["stripe_publishable_key"]
+    stripe_publishable_key = kwargs.get("stripe_publishable_key")
     token = kwargs.get("token")
     open_subscription = kwargs.get("subscription", None)
 
@@ -131,7 +140,8 @@ def advantage_view(**kwargs):
 
         for contract in account["contracts"]:
             contract_info = contract["contractInfo"]
-            if not contract_info.get("items"):
+            items = contract_info.get("items")
+            if not items:
                 # TODO(frankban): clean up existing contracts with no items in
                 # production.
                 continue
@@ -174,21 +184,22 @@ def advantage_view(**kwargs):
 
             effective_to = parse(contract_info["effectiveTo"])
             format_effective = effective_to.strftime("%d %B %Y")
-            contract["contractInfo"]["effectiveToFormatted"] = format_effective
+            contract_info["effectiveToFormatted"] = format_effective
 
             if effective_to < time_now:
-                contract["contractInfo"]["status"] = "expired"
+                contract_info["status"] = "expired"
+                grace_period = effective_to + timedelta(days=14)
+                format_grace_period = grace_period.strftime("%d %B %Y")
+                contract_info["grace_period_end"] = format_grace_period
                 restart_date = time_now - timedelta(days=1)
-                contract["contractInfo"]["expired_restart_date"] = restart_date
+                contract_info["expired_restart_date"] = restart_date
 
             date_difference = effective_to - time_now
             contract["expiring"] = date_difference.days <= 30
-            contract["contractInfo"]["daysTillExpiry"] = date_difference.days
+            contract_info["daysTillExpiry"] = date_difference.days
 
             try:
-                contract["renewal"] = _make_renewal(
-                    advantage, contract["contractInfo"]
-                )
+                contract["renewal"] = _make_renewal(advantage, contract_info)
             except KeyError:
                 flask.current_app.extensions["sentry"].captureException()
                 contract["renewal"] = None
@@ -198,6 +209,10 @@ def advantage_view(**kwargs):
             )
 
             product_name = contract["contractInfo"]["products"][0]
+
+            reason = items[0].get("reason")
+            is_trialled = len(items) == 1 and reason == "trial_started"
+            contract["is_trialled"] = is_trialled and date_difference.days > 0
 
             contract["productID"] = product_name
             contract["is_detached"] = False
@@ -292,6 +307,7 @@ def advantage_shop_view(**kwargs):
     token = kwargs.get("token")
 
     account = None
+    contracts = {}
     previous_purchase_ids = {"monthly": "", "yearly": ""}
     advantage = UAContractsAPI(
         session, None, api_url=api_url, is_for_view=True
@@ -325,6 +341,8 @@ def advantage_shop_view(**kwargs):
                 period = subscription["subscription"]["period"]
                 previous_purchase_ids[period] = subscription["lastPurchaseID"]
 
+            contracts = advantage.get_account_contracts(account["id"])
+
     listings = advantage.get_product_listings("canonical-ua")
     product_listings = listings.get("productListings")
     if not product_listings:
@@ -340,6 +358,16 @@ def advantage_shop_view(**kwargs):
             continue
 
         listing["product"] = products[listing["productID"]]
+
+        listing["can_be_trialled"] = (
+            "trialDays" in listing and listing["trialDays"] > 0
+        )
+        if listing["can_be_trialled"]:
+            for contract in contracts:
+                product_id = contract["contractInfo"]["products"][0]
+                if product_id == listing["productID"]:
+                    listing["can_be_trialled"] = False
+                    break
 
         website_listing.append(listing)
 
@@ -735,6 +763,111 @@ def accept_renewal(renewal_id, **kwargs):
     advantage = UAContractsAPI(session, token, api_url=api_url)
 
     return advantage.accept_renewal(renewal_id)
+
+
+@advantage_checks(check_list=["need_user"])
+@use_kwargs(post_trial, location="json")
+def post_trial(**kwargs):
+    api_url = kwargs.get("api_url")
+    token = kwargs.get("token")
+    account_id = kwargs.get("account_id")
+    products = kwargs.get("products")
+    name = kwargs.get("name")
+    address = kwargs.get("address")
+
+    advantage = UAContractsAPI(session, token, api_url=api_url)
+
+    trial = advantage.post_marketplace_trial(
+        marketplace="canonical-ua",
+        trial_request={
+            "accountID": account_id,
+            "items": [
+                {
+                    "productListingID": product["product_listing_id"],
+                    "value": product["quantity"],
+                }
+                for product in products
+            ],
+            "customerInfo": {
+                "name": name,
+                "address": address,
+            },
+        },
+    )
+
+    return flask.jsonify(trial), 200
+
+
+@advantage_checks()
+@use_kwargs(post_guest_trial, location="json")
+def post_guest_trial(**kwargs):
+    flask.session["guest_trial"] = {
+        "test_backend": kwargs.get("test_backend"),
+        "api_url": kwargs.get("api_url"),
+        "email": kwargs.get("email"),
+        "account_name": kwargs.get("account_name"),
+        "name": kwargs.get("name"),
+        "address": kwargs.get("address"),
+        "products": kwargs.get("products"),
+    }
+
+    return flask.jsonify({"message": "guest trial stored"})
+
+
+@advantage_checks(check_list=["view_need_user", "need_guest_trial"])
+def save_guest_trial(**kwargs):
+    token = kwargs.get("token")
+    session_values = flask.session.get("guest_trial")
+    test_backend = session_values.get("test_backend")
+    api_url = session_values.get("api_url")
+    email = session_values.get("email")
+    account_name = session_values.get("account_name")
+    name = session_values.get("name")
+    address = session_values.get("address")
+    products = session_values.get("products")
+
+    flask.session.pop("guest_trial")
+
+    advantage = UAContractsAPI(
+        session, token, api_url=api_url, is_for_view=True
+    )
+
+    try:
+        account = advantage.ensure_purchase_account(
+            email=email, account_name=account_name
+        )
+    except (UnauthorizedError, HTTPError) as error:
+        if error.response.status_code == 401:
+            raise UAContractsAPIAuthErrorView(error)
+
+        raise UAContractsAPIErrorView
+
+    advantage.put_customer_info(
+        account.get("accountID"), None, address, name, None
+    )
+
+    advantage.post_marketplace_trial(
+        marketplace="canonical-ua",
+        trial_request={
+            "accountID": account.get("accountID"),
+            "items": [
+                {
+                    "productListingID": product["product_listing_id"],
+                    "value": product["quantity"],
+                }
+                for product in products
+            ],
+            "customerInfo": {
+                "name": name,
+                "address": address,
+            },
+        },
+    )
+
+    if test_backend:
+        return flask.redirect("/advantage?test_backend=true")
+
+    return flask.redirect("/advantage")
 
 
 def _prepare_monthly_info(monthly_info, subscription, advantage):

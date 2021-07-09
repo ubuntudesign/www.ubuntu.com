@@ -105,14 +105,21 @@
             <div class="row">
               {% with mobile="true" %}
 
-                {% if contract["period"] == "monthly" %}
+                {% if contract['is_trialled'] %}
 
-                  {% include "advantage/table/_manage-monthly.html" %}
+                  {% include "advantage/table/_free-trial.html" %}
 
                 {% else %}
 
-                  {% include "advantage/table/_manage-yearly.html" %}
+                  {% if contract["period"] == "monthly" %}
 
+                    {% include "advantage/table/_manage-monthly.html" %}
+
+                  {% else %}
+
+                    {% include "advantage/table/_manage-yearly.html" %}
+
+                  {% endif %}
                 {% endif %}
 
               {% endwith %}
@@ -225,7 +232,7 @@
               </thead>
               <tbody>
                 {% for contract in enterprise_contracts[account] %}
-                  {% if contract["contractInfo"]["status"] != 'expired' or contract["renewal"]["renewable"] %}
+                  {% if contract["contractInfo"]["status"] != 'expired' or contract["renewal"]["renewable"] or contract["is_trialled"] %}
                     {% set expired_renewable = contract['renewal'] and contract['contractInfo']['daysTillExpiry'] < 0 %}
                     {% if not open_subscription and not new_subscription_id and (loop.index == 1 and outer_loop.index == 1) %}
                       {% set default_open_cell = true %}
@@ -290,14 +297,21 @@
                       </td>
                       <td id="expanded-details-{{ outer_loop.index }}-{{ loop.index }}" class="p-table-expanding__panel" aria-hidden="{% if open_subscription == contract['contractInfo']['id'] %}false{% else %}true{% endif %}">
                         <div class="row">
-                          {% if contract["period"] == "monthly" %}
+                          {% if contract['is_trialled'] %}
 
-                            {% include "advantage/table/_manage-monthly.html" %}
+                            {% include "advantage/table/_free-trial.html" %}
 
                           {% else %}
 
-                            {% include "advantage/table/_manage-yearly.html" %}
+                            {% if contract["period"] == "monthly" %}
 
+                              {% include "advantage/table/_manage-monthly.html" %}
+
+                            {% else %}
+
+                              {% include "advantage/table/_manage-yearly.html" %}
+
+                            {% endif %}
                           {% endif %}
                         </div>
                       </td>

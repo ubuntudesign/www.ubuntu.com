@@ -3,7 +3,6 @@ import {
   Row,
   Col,
   ActionButton,
-  CheckboxInput,
   Notification,
   Spinner,
 } from "@canonical/react-components";
@@ -14,11 +13,14 @@ import PaymentMethodForm from "./components/PaymentMethodForm";
 import Summary from "./components/Summary";
 import { Formik } from "formik";
 import useProduct from "./APICalls/useProduct";
-import usePurchase from "./APICalls/usePurchase";
 import usePendingPurchase from "./APICalls/usePendingPurchase";
 import { useQueryClient } from "react-query";
 import { getErrorMessage } from "../../error-handler";
 import usePreview from "./APICalls/usePreview";
+import TotalSection from "./components/TotalSection";
+import FreeTrialRadio from "./components/FreeTrialRadio";
+import TermsCheckBox from "./components/TermsCheckBox";
+import PositiveButton from "./components/PositiveButton";
 
 const getUserInfoFromVariables = (data, variables) => {
   return {
@@ -49,7 +51,6 @@ const getUserInfoFromVariables = (data, variables) => {
 
 const PurchaseModal = () => {
   const [error, setError] = useState(null);
-  const [areTermsChecked, setTermsChecked] = useState(false);
   const [isCardValid, setCardValid] = useState(false);
   const {
     data: userInfo,
@@ -62,17 +63,16 @@ const PurchaseModal = () => {
   );
   const queryClient = useQueryClient();
 
-  const {
-    data: pendingPurchase,
-    setPendingPurchaseID,
-    error: purchaseError,
-    isLoading: isPendingPurchaseLoading,
-  } = usePendingPurchase();
+  const { data: pendingPurchase, error: purchaseError } = usePendingPurchase();
 
   const paymentMethodMutation = registerPaymentMethod();
-  const purchaseMutation = usePurchase();
+  const { product } = useProduct();
 
   const initialValues = {
+    freeTrial:
+      product?.canBeTrialled && !(step === 2 && window.isGuest)
+        ? "useFreeTrial"
+        : "payNow",
     email: userInfo?.customerInfo?.email ?? "",
     name: userInfo?.customerInfo?.name ?? "",
     buyingFor:
@@ -87,6 +87,7 @@ const PurchaseModal = () => {
     usState: userInfo?.customerInfo?.address?.state ?? "",
     caProvince: userInfo?.customerInfo?.address?.state ?? "",
     VATNumber: userInfo?.customerInfo?.taxID?.value ?? "",
+    terms: false,
   };
 
   useEffect(() => {
@@ -148,7 +149,7 @@ const PurchaseModal = () => {
     paymentMethodMutation.mutate(values, {
       onSuccess: (data, variables) => {
         window.accountId = data.accountId;
-        setTermsChecked(false);
+        actions.setValues({ terms: false });
         setStep(2);
         queryClient.setQueryData(
           "userInfo",
@@ -185,41 +186,13 @@ const PurchaseModal = () => {
     });
   };
 
-  const onPayClick = () => {
-    purchaseMutation.mutate("", {
-      onSuccess: (data) => {
-        //start polling
-        setPendingPurchaseID(data);
-      },
-      onError: (error) => {
-        if (error.message.includes("can only make one purchase at a time")) {
-          setError(
-            <>
-              You already have a pending purchase. Please go to{" "}
-              <a href="/advantage/payment-methods">payment methods</a> to retry.
-            </>
-          );
-        } else {
-          setError(
-            <>
-              Sorry, there was an unknown error with with the payment. Check the
-              details and try again. Contact{" "}
-              <a href="https://ubuntu.com/contact-us">Canonical sales</a> if the
-              problem persists.
-            </>
-          );
-        }
-      },
-    });
-  };
-
   return (
     <Formik
       initialValues={initialValues}
       enableReinitialize={true}
       onSubmit={onSubmit}
     >
-      {({ isValid, dirty, submitForm, isSubmitting }) => (
+      {() => (
         <>
           <header className="p-modal__header">
             <h2 className="p-modal__title u-no-margin--bottom" id="modal-title">
@@ -243,35 +216,16 @@ const PurchaseModal = () => {
                     {error}
                   </Notification>
                 )}
+
+                {product?.canBeTrialled ? <FreeTrialRadio step={step} /> : null}
+
                 {step === 1 ? (
                   <PaymentMethodForm setCardValid={setCardValid} />
                 ) : (
                   <PaymentMethodSummary setStep={setStep} />
                 )}
-                {step === 1 ? null : (
-                  <Row className="u-no-padding">
-                    <Col size="12">
-                      <CheckboxInput
-                        name="TermsCheckbox"
-                        onChange={(e) => {
-                          setTermsChecked(e.target.checked);
-                        }}
-                        label={
-                          <>
-                            I agree to the{" "}
-                            <a
-                              href="/legal/ubuntu-advantage-service-terms"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              Ubuntu Advantage service terms
-                            </a>
-                          </>
-                        }
-                      />
-                    </Col>
-                  </Row>
-                )}
+                <TotalSection />
+                <TermsCheckBox step={step} />
               </>
             )}
           </div>
@@ -282,35 +236,19 @@ const PurchaseModal = () => {
                 appearance="neutral"
                 aria-controls="purchase-modal"
                 style={{ textAlign: "center" }}
+                onClick={() => {
+                  setError(null);
+                }}
               >
                 Cancel
               </ActionButton>
 
-              {step === 1 ? (
-                <ActionButton
-                  disabled={(!userInfo && !dirty) || !isValid || !isCardValid}
-                  appearance="positive"
-                  className="col-small-2 col-medium-2 col-3 u-no-margin"
-                  style={{ textAlign: "center" }}
-                  onClick={submitForm}
-                  loading={isSubmitting}
-                >
-                  Continue
-                </ActionButton>
-              ) : (
-                <ActionButton
-                  className="col-small-2 col-medium-2 col-3 u-no-margin"
-                  appearance="positive"
-                  style={{ textAlign: "center" }}
-                  disabled={!areTermsChecked}
-                  onClick={onPayClick}
-                  loading={
-                    purchaseMutation.isLoading || isPendingPurchaseLoading
-                  }
-                >
-                  Pay
-                </ActionButton>
-              )}
+              <PositiveButton
+                step={step}
+                isCardValid={isCardValid}
+                setError={setError}
+                userInfo={userInfo}
+              />
             </Row>
           </footer>
         </>

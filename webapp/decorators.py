@@ -53,6 +53,8 @@ def advantage_checks(check_list=None):
 
             user_token = flask.session.get("authentication_token")
             guest_token = flask.session.get("guest_authentication_token")
+            has_user = user_info(flask.session)
+            url_ending = "?test_backend=true" if is_test_backend else ""
 
             kwargs["test_backend"] = is_test_backend
             kwargs["api_url"] = api_url
@@ -60,24 +62,34 @@ def advantage_checks(check_list=None):
             kwargs["token"] = user_token or guest_token
             kwargs["token_type"] = "Macaroon" if user_token else "Bearer"
 
-            if "view_need_user" in check_list and not user_info(flask.session):
+            if "view_need_user" in check_list and not has_user:
                 if flask.request.path != "/advantage":
-                    return flask.redirect("/advantage")
+                    return flask.redirect(f"/advantage{url_ending}")
 
                 return flask.render_template(
                     "advantage/index-no-login.html",
                     is_test_backend=is_test_backend,
                 )
 
+            if "need_guest_trial" in check_list:
+                if not flask.session.get("guest_trial"):
+                    return flask.redirect(f"/advantage{url_ending}")
+
+            if "check_for_guest_trials" in check_list:
+                if has_user and flask.session.get("guest_trial"):
+                    return flask.redirect(
+                        f"/advantage/save-guest-trial{url_ending}"
+                    )
+
             if "need_user" in check_list:
-                if not user_info(flask.session):
+                if not has_user:
                     return (
                         flask.jsonify({"error": "authentication required"}),
                         401,
                     )
 
             if "need_user_or_guest" in check_list:
-                if not user_info(flask.session) and not guest_token:
+                if not has_user and not guest_token:
                     return (
                         flask.jsonify({"error": "authentication required"}),
                         401,

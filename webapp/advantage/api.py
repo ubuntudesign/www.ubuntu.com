@@ -145,7 +145,13 @@ class UAContractsAPI:
             )
         except HTTPError as error:
             if error.response.status_code == 401:
-                raise UAContractsAPIAuthError(error)
+                if self.is_for_view:
+                    raise UAContractsAPIAuthErrorView(error)
+                else:
+                    raise UAContractsAPIAuthError(error)
+
+            if self.is_for_view:
+                raise UAContractsAPIErrorView(error)
 
             raise UAContractsAPIError(error)
 
@@ -442,6 +448,28 @@ class UAContractsAPI:
             raise UAContractsAPIError(error)
 
         return response.json() if response.status_code != 200 else None
+
+    def post_marketplace_trial(
+        self, marketplace: str, trial_request: dict
+    ) -> dict:
+        try:
+            response = self._request(
+                method="post",
+                path=f"v1/marketplace/{marketplace}/trial",
+                json=trial_request,
+            )
+        except HTTPError as error:
+            if error.response.status_code == 401:
+                if self.is_for_view:
+                    raise UAContractsAPIAuthErrorView(error)
+                raise UAContractsAPIAuthError(error)
+
+            if self.is_for_view:
+                raise UAContractsAPIErrorView(error)
+
+            raise UAContractsAPIError(error)
+
+        return response.json()
 
 
 class UnauthorizedError(Exception):

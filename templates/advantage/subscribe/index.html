@@ -124,7 +124,8 @@
       price: {{ listing.price|tojson }},
       period: "{{ listing.period }}",
       productID: "{{ listing.product.id }}",
-      private: "{{ listing.privateForAccount }}"
+      private: "{{ listing.privateForAccount }}",
+      canBeTrialled: "{{ listing.can_be_trialled }}" === "True"
     },
     {% endfor %}
   };

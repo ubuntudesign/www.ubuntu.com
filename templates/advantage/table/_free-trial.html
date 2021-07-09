@@ -1,0 +1,42 @@
+<div class="col-start-large-2 col-10">
+  {% if mobile %}
+    <hr class="p-separator" />
+  {% endif %}
+  <div class="row">
+    {% if contract['contractInfo']['status'] == "expired" %}
+
+      <div class="p-notification--caution">
+        <p class="p-notification__response">
+         <span class="p-notification__status">Your free trial expired.</span>You will lose access to this Ubuntu Advantage subscription on {{ contract['contractInfo']['grace_period_end'] }}.
+        </p>
+      </div>
+
+    {% endif %}
+
+    <div class="advantage-table-section">
+      <div class="advantage-table-instruction">
+        <span>Started on</span>
+        <p>{{ contract['contractInfo']['createdAtFormatted'] }}</p>
+        <hr />
+        <span>Free trial ends on</span>
+        <p>{{ contract['contractInfo']['effectiveToFormatted'] }}</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12 u-align--right">
+        <a 
+          class="p-button--positive u-no-margin--right" 
+          href="/advantage/subscribe?free_trial={{contract["productID"]}}&quantity={{ contract['rowMachineCount'] }}{% if is_test_backend %}&test_backend=true{% endif %}"
+        >
+          {% if contract['contractInfo']['status'] == "expired" %}
+            Buy this subscription
+          {% else %}
+            End trial and buy
+          {% endif %}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+

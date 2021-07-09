@@ -7,6 +7,8 @@ const isSmallVP =
 
 const productsArray = Object.entries(window.productList);
 
+const params = new URLSearchParams(window.location.search);
+
 const initialFormState = {
   type: "physical",
   version: "18.04",
@@ -113,9 +115,48 @@ function getProduct(state) {
   };
 }
 
+const getFreeTrialState = () => {
+  const productId = params.get("free_trial");
+  const quantity = Number(params.get("quantity")) || 1;
+
+  var freeTrialState = initialFormState;
+
+  freeTrialState.quantity = Math.min(Math.max(1, quantity), 1000);
+
+  if (productId.includes("virtual")) {
+    freeTrialState.type = "virtual";
+  } else if (productId.includes("desktop")) {
+    freeTrialState.type = "desktop";
+  } else {
+    freeTrialState.type = "physical";
+  }
+
+  if (productId.includes("uaia")) {
+    freeTrialState.feature = "infra+apps";
+  } else if (productId.includes("uaa")) {
+    freeTrialState.feature = "apps";
+  } else {
+    freeTrialState.feature = "infra";
+  }
+
+  if (productId.includes("advanced")) {
+    freeTrialState.support = "advanced";
+  } else if (productId.includes("standard")) {
+    freeTrialState.support = "standard";
+  } else {
+    freeTrialState.support = "essential";
+  }
+
+  freeTrialState.product = getProduct(freeTrialState);
+
+  return freeTrialState;
+};
+
 const formSlice = createSlice({
   name: "form",
-  initialState: loadState("ua-subscribe-state", "form", initialFormState),
+  initialState: params.has("free_trial")
+    ? getFreeTrialState()
+    : loadState("ua-subscribe-state", "form", initialFormState),
   reducers: {
     changeType(state, action) {
       state.type = action.payload;
@@ -136,9 +177,7 @@ const formSlice = createSlice({
       state.version = action.payload;
     },
     changeFeature(state, action) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isAppsEnabled = urlParams.get("esm_apps") === "true";
-      state.feature = isAppsEnabled ? action.payload : "infra"; //if ESM Apps is disabled we default to infra
+      state.feature = action.payload;
 
       if (
         action.payload === "apps" &&

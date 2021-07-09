@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Row, Col, Button } from "@canonical/react-components";
 import useStripeCustomerInfo from "../APICalls/useStripeCustomerInfo";
+import { useFormikContext } from "formik";
 
 const cardImageMap = {
   visa: "https://assets.ubuntu.com/v1/2060e728-VBM_COF.png",
@@ -11,6 +12,7 @@ const cardImageMap = {
 };
 
 function PaymentMethodSummary({ setStep }) {
+  const { values } = useFormikContext();
   const { data: userInfo } = useStripeCustomerInfo();
 
   return (
@@ -42,7 +44,11 @@ function PaymentMethodSummary({ setStep }) {
         </Col>
       </Row>
 
-      <div className="p-card">
+      <div
+        className={`p-card ${
+          values.freeTrial === "useFreeTrial" ? "u-disable" : ""
+        }`}
+      >
         <Row className="u-no-padding">
           <Col size="2" medium="1" small="1">
             <img

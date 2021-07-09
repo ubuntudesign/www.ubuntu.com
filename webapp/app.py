@@ -89,6 +89,9 @@ from webapp.advantage.views import (
     post_customer_info,
     post_stripe_invoice_id,
     cancel_advantage_subscriptions,
+    post_guest_trial,
+    save_guest_trial,
+    post_trial,
 )
 
 from webapp.login import login_handler, logout, user_info, empty_session
@@ -351,6 +354,24 @@ app.add_url_rule(
 app.add_url_rule(
     "/advantage/renewals/<renewal_id>/process-payment",
     view_func=accept_renewal,
+    methods=["POST"],
+)
+
+app.add_url_rule(
+    "/advantage/post-guest-trial",
+    view_func=post_guest_trial,
+    methods=["POST"],
+)
+
+app.add_url_rule(
+    "/advantage/save-guest-trial",
+    view_func=save_guest_trial,
+    methods=["GET"],
+)
+
+app.add_url_rule(
+    "/advantage/post-trial",
+    view_func=post_trial,
     methods=["POST"],
 )
 

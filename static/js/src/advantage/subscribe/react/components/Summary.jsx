@@ -5,10 +5,10 @@ import { formatter } from "../../renderers/form-renderer";
 import usePreview from "../APICalls/usePreview";
 import useProduct from "../APICalls/useProduct";
 
-const DATE_FORMAT = "dd MMMM yyyy";
+export const DATE_FORMAT = "dd MMMM yyyy";
 
 function Summary() {
-  const { product, quantity } = useProduct();
+  const { product, quantity, isMonthly } = useProduct();
   const { data: preview } = usePreview();
 
   let totalSection = (
@@ -85,7 +85,7 @@ function Summary() {
           <div className="u-text-light">Plan type:</div>
         </Col>
         <Col size="8">
-          <div>{product?.name}</div>
+          <div dangerouslySetInnerHTML={{ __html: product?.name }} />
         </Col>
       </Row>
       <Row className="u-no-padding u-sv1">
@@ -122,7 +122,7 @@ function Summary() {
             <div>
               {format(
                 add(new Date(), {
-                  months: product?.period === "monthly" ? 1 : 12,
+                  months: isMonthly ? 1 : 12,
                 }),
                 DATE_FORMAT
               )}

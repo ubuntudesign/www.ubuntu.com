@@ -1,9 +1,13 @@
 import React from "react";
 import { Row, Col } from "@canonical/react-components";
 
-const formRow = ({ label, children, error }) => {
+const formRow = ({ label, disabled, children, error }) => {
   return (
-    <Row className="p-form__group  u-no-padding u-vertically-center">
+    <Row
+      className={`p-form__group  u-no-padding u-vertically-center ${
+        disabled ? "u-disable" : ""
+      }`}
+    >
       <Col size="4" style={{ alignSelf: "start" }}>
         <label>{label}</label>
       </Col>

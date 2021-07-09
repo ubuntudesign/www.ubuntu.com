@@ -30,6 +30,7 @@ const useProduct = () => {
   return {
     product: data?.product,
     quantity: data?.quantity,
+    isMonthly: data?.product?.period === "monthly",
     isLoading: !data,
   };
 };

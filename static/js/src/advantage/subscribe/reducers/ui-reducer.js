@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { loadState } from "../../../utils/persitState";
 
+const params = new URLSearchParams(window.location.search);
+
 const initialUIState = {
   otherVersionsModal: {
     show: false,
@@ -12,7 +14,9 @@ const initialUIState = {
 
 const UISlice = createSlice({
   name: "ui",
-  initialState: loadState("ua-subscribe-state", "ui", initialUIState),
+  initialState: params.has("free_trial")
+    ? { ...initialUIState, purchaseModal: { show: true } }
+    : loadState("ua-subscribe-state", "ui", initialUIState),
   reducers: {
     toggleOtherVersionsModal(state) {
       state.otherVersionsModal.show = !state.otherVersionsModal.show;
