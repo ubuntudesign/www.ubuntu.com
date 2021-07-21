@@ -1,0 +1,70 @@
+{% extends "advantage/base_advantage.html" %}
+
+{% block title %}Invoices{% endblock %}
+{% block meta_description %}Ubuntu Advantage for Infrastructure offers a single, per-node packaging of the most comprehensive software, security and IaaS support in the industry, with OpenStack support, Kubernetes support included, and Livepatch, Landscape and Extended Security Maintenance to address security and compliance concerns.{% endblock %}
+
+{% block content %}
+
+<section class="p-strip--suru-topped">
+  <div class="row">
+    <div class="col-12">
+      <h1>Invoices</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-3">
+      <select name="marketplace" id="marketplace-dropdown">
+        <option value="">All invoices</option>
+        <option value="canonical-ua" {% if marketplace == 'canonical-ua' %}selected{% endif %}>Canonical UA</option>
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <table>
+        <thead>
+          <th>Service</th>
+          <th>Date</th>
+          <th>Total</th>
+          <th>Download PDF</th>
+        </thead>
+        <tbody>
+          {% for invoice in invoices %}
+            <tr>
+              <td>{{ invoice.service }} ({{ invoice.period }})</td>
+              <td>{{ invoice.date }}</td>
+              <td><span class="js-format-price">{{ invoice.total }}</span></td>
+              <td><a href="{{ invoice.download_link }}{% if is_test_backend %}?test_backend=true{% endif %}" target="_blank">{{ invoice.download_file_name }}</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<script>
+  const prices = document.querySelectorAll('.js-format-price');
+  prices.forEach(price => {
+    const amount = price.innerText.split(' ')[0];
+    const currency = price.innerText.split(' ')[1];
+    const formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    });
+
+    price.innerText = formatter.format(amount)
+  });
+
+  const marketplaceDropdown = document.querySelector('#marketplace-dropdown')
+  marketplaceDropdown.addEventListener('change', (e) => {
+    const value = e.target.value;
+
+    const href = new URL(window.location.href)
+    href.searchParams.set('marketplace', value);
+    window.location.replace(href);
+  })
+</script>
+
+{% endblock content %}

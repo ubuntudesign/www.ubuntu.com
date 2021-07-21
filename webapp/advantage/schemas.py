@@ -1,4 +1,4 @@
-from marshmallow import Schema
+from marshmallow import Schema, validate
 
 from webargs.fields import (
     String,
@@ -69,4 +69,11 @@ ensure_purchase_account = {
     "account_name": String(),
     "payment_method_id": String(),
     "country": String(),
+}
+
+invoice_view = {
+    "marketplace": String(
+        validate=validate.OneOf(["", "canonical-ua", "canonical-cube"])
+    ),
+    "email": String(),
 }
