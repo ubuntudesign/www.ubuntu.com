@@ -69,6 +69,7 @@ from webapp.views import (
     sitemap_index,
     account_query,
     sixteen_zero_four,
+    openstack_install,
 )
 
 from webapp.advantage.views import (
@@ -813,6 +814,12 @@ app.add_url_rule(
 app.add_url_rule(
     "/certified/component/<component_id>",
     view_func=certified_component_details,
+)
+
+# Override openstack/install
+app.add_url_rule(
+    "/openstack/install",
+    view_func=openstack_install,
 )
 
 

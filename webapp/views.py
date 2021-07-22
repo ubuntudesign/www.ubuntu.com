@@ -21,7 +21,12 @@ from geolite2 import geolite2
 from requests.exceptions import HTTPError
 from canonicalwebteam.search.models import get_search_results
 from canonicalwebteam.search.views import NoAPIKeyError
-
+from bs4 import BeautifulSoup
+from canonicalwebteam.discourse import (
+    DiscourseAPI,
+    Docs,
+    DocParser,
+)
 
 # Local
 from webapp.login import user_info
@@ -635,6 +640,53 @@ def engage_thank_you(engage_pages):
             return flask.abort(404)
 
     return render_template
+
+
+def openstack_install():
+    """
+    Openstack install docs
+    Instructions for openstack installation pulled from Discourse
+    """
+    discourse_api = DiscourseAPI(
+        base_url="https://discourse.ubuntu.com/", session=session
+    )
+    openstack_install_parser = DocParser(
+        api=discourse_api,
+        index_topic_id=23346,
+        url_prefix="/openstack/install",
+    )
+    openstack_install_docs = Docs(
+        parser=openstack_install_parser,
+        document_template="/openstack/install.html",
+        url_prefix="/openstack/install",
+        blueprint_name="openstack-install-docs",
+    )
+
+    singlenode_topic = openstack_install_docs.parser.api.get_topic(21427)
+    singlenode_topic_soup = BeautifulSoup(
+        singlenode_topic["post_stream"]["posts"][0]["cooked"],
+        features="html.parser",
+    )
+    singlenode_content = openstack_install_docs.parser._process_topic_soup(
+        singlenode_topic_soup
+    )
+
+    multinode_topic = openstack_install_docs.parser.api.get_topic(18259)
+    multinode_topic_soup = BeautifulSoup(
+        multinode_topic["post_stream"]["posts"][0]["cooked"],
+        features="html.parser",
+    )
+    multinode_content = openstack_install_docs.parser._process_topic_soup(
+        multinode_topic_soup
+    )
+
+    # multinode_doc = parser.api.get_topic(18259)
+
+    return flask.render_template(
+        "openstack/install.html",
+        single_node=str(singlenode_content),
+        multi_node=str(multinode_content),
+    )
 
 
 # Blog
