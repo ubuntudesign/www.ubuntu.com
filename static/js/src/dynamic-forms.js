@@ -288,13 +288,15 @@ import { assignMarketoBackgroundSubmit } from "./bg-form-submit";
           var comma = "";
           var fieldTitle = formField.querySelector(".p-heading--five");
           var inputs = formField.querySelectorAll("input, textarea");
-          message += fieldTitle.innerText + "\r\n";
+          if (fieldTitle) {
+            message += fieldTitle.innerText + "\r\n";
+          }
 
           inputs.forEach(function (input) {
             switch (input.type) {
               case "radio":
                 if (input.checked) {
-                  message += comma + input.value;
+                  message += comma + input.value + "\r\n\r\n";
                   comma = ", ";
                 }
                 break;
@@ -316,31 +318,30 @@ import { assignMarketoBackgroundSubmit } from "./bg-form-submit";
                   } else {
                     label = input.id;
                   }
-                  message += comma + label;
+                  message += comma + label + "\r\n\r\n";
                   comma = ", ";
                 }
                 break;
               case "text":
                 if (input.value !== "") {
-                  message += comma + input.value;
+                  message += comma + input.value + "\r\n\r\n";
                   comma = ", ";
                 }
                 break;
               case "number":
                 if (input.value !== "") {
-                  message += comma + input.value;
+                  message += comma + input.value + "\r\n\r\n";
                   comma = ", ";
                 }
                 break;
               case "textarea":
                 if (input.value !== "") {
-                  message += comma + input.value;
+                  message += comma + input.value + "\r\n\r\n";
                   comma = ", ";
                 }
                 break;
             }
           });
-          message += "\r\n\r\n";
         });
 
         return message;

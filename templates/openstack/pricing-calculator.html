@@ -103,7 +103,6 @@
 <script src="{{ versioned_static('js/dist/costCalculator.js') }}" type="module" defer></script>
 
 <script>
-
 const updateFormFields = () => {
   document.addEventListener("contactModalLoaded", (event) => {
     const container = document.querySelector(`#cost-calculator-section`);
@@ -129,6 +128,32 @@ const updateFormFields = () => {
 };
 updateFormFields();
 
+const addAnotherInstance = () => {
+  document.addEventListener("contactModalLoaded", (event) => {
+    const button = document.querySelector("#add-another-instance");
+    button.addEventListener("click", () => {
+      const instanceTypes = Array.from(
+        document.querySelectorAll(".js-instance-type") 
+      );
+      const length = instanceTypes.length;
+      for (let i = 0; i < length; i++) {
+        if (instanceTypes[i].classList.contains("u-hide")) {
+          instanceTypes[i].classList.remove("u-hide");
+          //when new instance is added add p-heading--five class to h3s for inputs only to capture values in comment.
+          const inputTitles = instanceTypes[i].querySelectorAll("h4")
+          inputTitles.forEach(inputTitle => {
+            inputTitle.classList.add("p-heading--five")
+          })
+          if (i === length - 1) {
+            button.setAttribute("disabled", "true")
+          }
+          return;
+        }
+      }
+    });
+  });
+};
+addAnotherInstance();
 </script> 
 
 {% endblock content %}
