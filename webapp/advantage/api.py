@@ -270,10 +270,18 @@ class UAContractsAPI:
 
         return response.json().get("subscriptions", [])
 
-    def get_account_purchases(self, account_id: str) -> dict:
+    def get_account_purchases(self, account_id: str, filters=None) -> dict:
+        if filters:
+            filters = "&".join(
+                "{}={}".format(key, value)
+                for key, value in filters.items()
+                if value is not None
+            )
+
         try:
             response = self._request(
-                method="get", path=f"v1/accounts/{account_id}/purchases"
+                method="get",
+                path=f"v1/accounts/{account_id}/purchases?{filters}",
             )
         except HTTPError as error:
             if error.response.status_code == 401:
@@ -281,7 +289,7 @@ class UAContractsAPI:
 
             raise UAContractsAPIError(error)
 
-        return response.json()
+        return response.json().get("purchases", [])
 
     def get_purchase(self, purchase_id: str) -> dict:
         try:
