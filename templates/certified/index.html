@@ -56,25 +56,25 @@
         ) | safe
       }}
       <h2 class="p-card__title p-heading--3">Ubuntu certified desktops</h2>
-      <hr />
       <p class="p-card__content u-sv2">Many of the world's biggest PC manufacturers certify their desktops for Ubuntu, ensuring it always runs as smoothly as its millions of users expect. Ubuntu is fast, reliable, packed with great software and free of viruses. That’s why you’ll find Ubuntu preloaded on desktops across government, education and enterprise, and in homes around the world.</p>
-      <p class="p-muted-text u-no-margin--bottom">Vendor:</p>
-      <ul class="p-inline-list" style="margin-bottom: 0.5rem;">
+      <hr />
+      <p class="p-muted-text u-no-margin--bottom">Vendor</p>
+      <ul class="p-inline-list--midline" style="margin-bottom: 0.5rem;">
         {% for desktop_vendor in desktop_vendors %}
         <li class="p-inline-list__item">
           <a href="/certified?category=Desktop&vendor={{ desktop_vendor.make }}">{{ desktop_vendor.make }}&nbsp;({{ desktop_vendor.desktops }})</a>
         </li>
         {% endfor %}
       </ul>
-      <p class="p-muted-text u-no-margin--bottom">Certified for Ubuntu:</p>
-      <ul class="p-inline-list">
+      <p class="p-muted-text u-no-margin--bottom">Certified for Ubuntu</p>
+      <ul class="p-inline-list--midline">
         {% for desktop_release in desktop_releases %}
         <li class="p-inline-list__item">
           <a href="/certified?category=Desktop&release={{ desktop_release.release }}">{{ desktop_release.release }}&nbsp;({{ desktop_release.desktops }})</a>
         </li>
         {% endfor %}
       </ul>
-      <p><a href="/certified?category=Desktop">All Ubuntu desktop certified hardware&nbsp;&rsaquo;</a></p>
+      <p><a href="/certified?category=Desktop" class="p-button--positive">See all</a></p>
     </div>
     <div class="col-6 p-card">
       {{ image (
@@ -87,25 +87,25 @@
         ) | safe
       }}
       <h2 class="p-card__title p-heading--3">Ubuntu certified laptops</h2>
-      <hr />
       <p class="p-card__content u-sv2">Just like desktops, manufacturers choose to certify their laptops for Ubuntu, ensuring it works just like you would expect.</p>
-      <p class="p-muted-text u-no-margin--bottom">Vendor:</p>
-      <ul class="p-inline-list" style="margin-bottom: 0.5rem;">
+      <hr />
+      <p class="p-muted-text u-no-margin--bottom">Vendor</p>
+      <ul class="p-inline-list--midline" style="margin-bottom: 0.5rem;">
         {% for laptop_vendor in laptop_vendors %}
         <li class="p-inline-list__item">
           <a href="/certified?category=Laptop&vendor={{ laptop_vendor.make }}">{{ laptop_vendor.make }}&nbsp;({{ laptop_vendor.laptops }})</a>
         </li>
         {% endfor %}
       </ul>
-      <p class="p-muted-text u-no-margin--bottom">Certified for Ubuntu:</p>
-      <ul class="p-inline-list">
+      <p class="p-muted-text u-no-margin--bottom">Certified for Ubuntu</p>
+      <ul class="p-inline-list--midline">
         {% for laptop_release in laptop_releases %}
         <li class="p-inline-list__item">
           <a href="/certified?category=Laptop&release={{ laptop_release.release }}">{{ laptop_release.release }}&nbsp;&nbsp;({{ laptop_release.laptops }})</a>
         </li>
         {% endfor %}
       </ul>
-      <p><a href="/certified?category=Laptop">All Ubuntu laptop certified hardware&nbsp;&rsaquo;</a></p>
+      <p><a href="/certified?category=Laptop" class="p-button--positive">See all</a></p>
     </div>
   </div>
   <div class="row u-equal-height">
@@ -120,18 +120,18 @@
         ) | safe
       }}
       <h2 class="p-card__title p-heading--3">Ubuntu certified servers</h2>
-      <hr />
       <p class="p-card__content u-sv2">Using Ubuntu Server speeds up the ability to deploy physical infrastructure on bare metal as it is in the cloud.</p>
       <p>Deploying on certified servers saves you time in choosing and testing what hardware you will use from a single server instance to the largest scale-out data-center environments.</p>
-      <p class="p-muted-text u-no-margin--bottom">Certified for Ubuntu:</p>
-      <ul class="p-inline-list">
+      <hr />
+      <p class="p-muted-text u-no-margin--bottom">Certified for Ubuntu</p>
+      <ul class="p-inline-list--midline">
         {% for server_release, total in server_releases.items() %}
         <li class="p-inline-list__item">
           <a href="/certified?category=Server&release={{ server_release }}">{{ server_release }}&nbsp;({{ total }})</a>
         </li>
         {% endfor %}
       </ul>
-      <p><a href="/certified?category=Server">All Ubuntu server certified hardware&nbsp;&rsaquo;</a></p>
+      <p><a href="/certified?category=Server" class="p-button--positive">See all</a></p>
     </div>
     <div class="col-6 p-card">
       {{ image (
@@ -144,18 +144,18 @@
         ) | safe
       }}
       <h2 class="p-card__title p-heading--3">Ubuntu certified IoT devices</h2>
-      <hr />
       <p class="p-card__content u-sv2">A number of IoT vendors rely on Ubuntu for their devices, from drones and robots to edge gateways and development boards. They certify their devices to offer users the guarantee of a stable, secure and optimised Ubuntu, either pre-loaded or as build your own option.</p>
       <p>Canonical's certification program offers you the peace of mind that all your Internet of Things devices will remain secure and regularly updated.</p>
-      <p class="p-muted-text u-no-margin--bottom">Vendor:</p>
-      <ul class="p-inline-list">
+      <hr />
+      <p class="p-muted-text u-no-margin--bottom">Vendor</p>
+      <ul class="p-inline-list--midline">
         {% for iot_vendor in iot_vendors %}
         <li class="p-inline-list__item">
           <a href="/certified?category=Device&vendor={{ iot_vendor.make }}">{{ iot_vendor.make }}&nbsp;({{ iot_vendor.smart_core }})</a>
         </li>
         {% endfor %}
       </ul>
-      <p><a href="/certified?category=Device">All IoT certified hardware&nbsp;&rsaquo;</a></p>
+      <p><a href="/certified?category=Device" class="p-button--positive">See all</a></p>
     </div>
   </div>
   <div class="row">
@@ -170,18 +170,18 @@
         ) | safe
       }}
       <h2 class="p-card__title p-heading--3">Ubuntu certified SoCs</h2>
-      <hr />
       <p class="p-card__content u-sv2">Low-power small-footprint System on a Chip (SoC) hardware are re-defining the future of sustainable data centers. Ubuntu Core delivers bullet-proof security, reliable updates and access to a rich ecosystem on 32 and 64-bit ARM and X86 platforms, perfect to power the Internet of Things.</p>
       <p>Canonical's certification program offers server manufacturers a selection of SoCs officially supported and maintained in Ubuntu to choose from for their products from servers to IoT.</p>
-      <p class="p-muted-text u-no-margin--bottom">Vendor:</p>
-      <ul class="p-inline-list">
+      <hr />
+      <p class="p-muted-text u-no-margin--bottom">Vendor</p>
+      <ul class="p-inline-list--midline">
         {% for soc_vendor in soc_vendors %}
         <li class="p-inline-list__item">
           <a href="/certified?category=SoC&vendor={{ soc_vendor.make }}">{{ soc_vendor.make }} ({{ soc_vendor.soc }})</a>
         </li>
         {% endfor %}
       </ul>
-      <p><a href="/certified?category=SoC">All Ubuntu SoC certified hardware&nbsp;&rsaquo;</a></p>
+      <p><a href="/certified?category=SoC" class="p-button--positive">See all</a></p>
     </div>
   </div>
 </section>

@@ -1,0 +1,28 @@
+@mixin ubuntu-p-inline-list-midline {
+  .p-inline-list--midline {
+    margin-left: 0;
+    padding-left: 0;
+
+    .p-inline-list__item {
+      @include vf-inline-list-item;
+
+      position: relative;
+      white-space: nowrap;
+
+      &::after {
+        color: #e5e5e5;
+        content: "|";
+        line-height: map-get($line-heights, default-text);
+        position: absolute;
+        right: -$sp-unit;
+      }
+
+      &:last-of-type,
+      .last-item {
+        &::after {
+          content: "";
+        }
+      }
+    }
+  }
+}
